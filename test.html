@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh-tw">
+	<meta charset="UTF-8">
+	<title>blogger API test</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+</head>
+<body>
+<div id="content"></div>
+<script>
+	$(document).ready(function(){
+		$.getJSON('https://www.googleapis.com/blogger/v3/users/self/blogs?key=AIzaSyAJa9EHS0owh5QFkA3w7AN6zBpir3WkKYM', function(xhr){
+			console.info('xhr', xhr);
+		})
+	});
+</script>
+</body>
+</html>
