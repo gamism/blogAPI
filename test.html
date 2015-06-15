@@ -3,16 +3,88 @@
 <head lang="zh-tw">
 	<meta charset="UTF-8">
 	<title>blogger API test</title>
+	<link rel="stylesheet" href="css/bootstrap.min.css"/>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 </head>
 <body>
-<div id="content"></div>
 <script>
+	var clientId = '1090065687757-bsmp4sd05d88ggd835pbnumq8kc1fe9d.apps.googleusercontent.com';
+	var apiKey = 'AIzaSyAJa9EHS0owh5QFkA3w7AN6zBpir3WkKYM';
+	var scopes = 'https://www.googleapis.com/auth/blogger';
+
+	function handleClientLoad() {
+		gapi.client.setApiKey(apiKey);
+		window.setTimeout(checkAuth,1);
+	}
+
+	function checkAuth() {
+		gapi.auth.authorize({client_id: clientId, scope: scopes, immediate: true}, handleAuthResult);
+	}
+
+	function handleAuthResult(authResult) {
+		var authorizeButton = document.getElementById('authorize-button');
+		if (authResult && !authResult.error) {
+			authorizeButton.style.visibility = 'hidden';
+			makeApiCall();
+		} else {
+			authorizeButton.style.visibility = '';
+			authorizeButton.onclick = handleAuthClick;
+		}
+	}
+
+	function handleAuthClick(event) {
+		gapi.auth.authorize({client_id: clientId, scope: scopes, immediate: false}, handleAuthResult);
+		return false;
+	}
+
+	function makeApiCall() {
+		gapi.client.load('blogger', 'v3', function() {
+			console.info('gapi ',gapi);
+			console.info('blogger ',gapi.client.blogger);
+		});
+	}
+</script>
+<script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+<div class="container">
+	<div class="row">
+		<div class="row">
+			Google OAuth Login <a href="https://www.googleapis.com/auth/blogger" id="authorize-button">OAuth2.0</a><br/>
+			<div id="content"></div>
+			title: <input type="text" class="form-control" id="title"/>
+		</div>
+		<div class="row">
+			content: <textarea name="" id="text" cols="30" rows="10" class="form-control"></textarea>
+			<button class="btn btn-primary" onclick="post()">Submit</button>
+		</div>
+	</div>
+	<div id="content2"></div>
+</div>
+<script>
+	function post()
+	{
+		$.ajax({
+			url:'https://www.googleapis.com/blogger/v3/blogs/1437673426177501605/posts?key=AIzaSyAJa9EHS0owh5QFkA3w7AN6zBpir3WkKYM',
+			type: 'POST',
+			data: '{"title":"'+ document.getElementById('title').value +'", "content":"'+ document.getElementById('text').value +'"}',
+			contentType: "application/json", // send as JSON
+			success: function(xhr) {
+				console.info('xhr',xhr );
+			}
+		})
+	}
 	$(document).ready(function(){
-		$.getJSON('https://www.googleapis.com/blogger/v3/users/self/blogs?key=AIzaSyAJa9EHS0owh5QFkA3w7AN6zBpir3WkKYM', function(xhr){
+		$.getJSON('https://www.googleapis.com/blogger/v3/blogs/1437673426177501605/posts?key=AIzaSyAJa9EHS0owh5QFkA3w7AN6zBpir3WkKYM', function(xhr){
 			console.info('xhr', xhr);
+			if(xhr.items)
+			{
+				$.each(xhr.items, function(k,v){
+					$('#content2').append(xhr.items[k].title + '<br/>');
+				})
+			}
 		})
 	});
+	//1437673426177501605
+	//https://www.googleapis.com/blogger/v3/blogs/1437673426177501605/posts?key=YOUR-API-KEY
 </script>
 </body>
 </html>
